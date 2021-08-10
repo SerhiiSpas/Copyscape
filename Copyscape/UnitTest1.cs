@@ -42,6 +42,19 @@ namespace Copyscape
             var actualresults = driver.FindElement(_find_results_title).Text;
             Assert.AreEqual(_expected_result, actualresults, "Test fail");
         }
+
+        public void Test2()
+        {
+            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
+            wait.Until(x => driver.FindElement(_inputurl));
+            driver.FindElement(_inputurl).SendKeys(_url);
+
+            var signin1 = driver.FindElement(_buttongo);
+            signin1.Click();
+
+            var actualresults = driver.FindElement(_find_results_title).Text;
+            Assert.AreEqual(_expected_result, actualresults, "Test fail");
+        }
         [TearDown]
         public void TearDown()
         {
