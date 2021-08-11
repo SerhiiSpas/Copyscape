@@ -15,7 +15,7 @@ namespace Copyscape
         private readonly By _find_results_title = By.XPath("//div[@class='results_title']//b[1]");
 
         private const string _url = "https://tradercalculator.site/";
-
+        
         private const string _expected_result = "No results";
         [SetUp]
         public void Setup()
@@ -41,20 +41,21 @@ namespace Copyscape
 
             var actualresults = driver.FindElement(_find_results_title).Text;
             Assert.AreEqual(_expected_result, actualresults, "Test fail");
+
+            if (_expected_result == actualresults)
+            {
+                driver.Quit();
+            }
+            else
+            {
+
+            }
+
+
+
+
         }
 
-        public void Test2()
-        {
-            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
-            wait.Until(x => driver.FindElement(_inputurl));
-            driver.FindElement(_inputurl).SendKeys(_url);
-
-            var signin1 = driver.FindElement(_buttongo);
-            signin1.Click();
-
-            var actualresults = driver.FindElement(_find_results_title).Text;
-            Assert.AreEqual(_expected_result, actualresults, "Test fail");
-        }
         [TearDown]
         public void TearDown()
         {
