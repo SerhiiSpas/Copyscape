@@ -4,6 +4,7 @@ using OpenQA.Selenium.Chrome;
 using System.Threading;
 using System;
 using OpenQA.Selenium.Support.UI;
+using System.Collections.Generic;
 
 namespace Copyscape
 {
@@ -48,7 +49,8 @@ namespace Copyscape
             }
             else
             {
-
+                IReadOnlyCollection<IWebElement> selecthreh = driver.FindElements(By.ClassName("result"));
+                selecthreh.Click();
             }
 
 
