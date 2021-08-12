@@ -1,68 +1,51 @@
 using NUnit.Framework;
 using OpenQA.Selenium;
-using OpenQA.Selenium.Chrome;
-using System.Threading;
 using System;
-using OpenQA.Selenium.Support.UI;
 using System.Collections.Generic;
+using RestSharp;
+using NUnit.Framework.Internal;
 
 namespace Copyscape
 {
-    public class Tests
+    
+    public class Copyscape_Check
     {
-        private IWebDriver driver;
-        private readonly By _inputurl = By.XPath("//input[@id='name']");
-        private readonly By _buttongo = By.XPath("//input[@value='Go']");
-        private readonly By _find_results_title = By.XPath("//div[@class='results_title']//b[1]");
-
-        private const string _url = "https://tradercalculator.site/";
-        
-        private const string _expected_result = "No results";
-        [SetUp]
-        public void Setup()
-        {
-            ChromeOptions options = new ChromeOptions();
-            options.AddArguments("--disable-extensions"); // to disable extension
-            options.AddArguments("--disable-notifications"); // to disable notification
-            options.AddArguments("--disable-application-cache"); // to disable cache
-            driver = new ChromeDriver(options);
-            driver.Navigate().GoToUrl("https://www.copyscape.com/");
-            driver.Manage().Window.Maximize();
-        }
+        public IWebDriver driver;
 
         [Test]
-        public void Test1()
+        public void Copyscape()
         {
-            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
-            wait.Until(x => driver.FindElement(_inputurl));
-            driver.FindElement(_inputurl).SendKeys(_url);
-
-            var signin1 = driver.FindElement(_buttongo);
-            signin1.Click();
-
-            var actualresults = driver.FindElement(_find_results_title).Text;
-            Assert.AreEqual(_expected_result, actualresults, "Test fail");
-
-            if (_expected_result == actualresults)
+            
+            var client = new RestClient("https://www.copyscape.com/?q=https%3A%2F%2Fsrp-trade.ru%2F"); //+url
+            client.Timeout = -1;
+            var request = new RestRequest(Method.GET);
+            request.AddHeader("sec-ch-ua", "\"Chromium\";v=\"92\", \" Not A;Brand\";v=\"99\", \"Google Chrome\";v=\"92\"");
+            request.AddHeader("sec-ch-ua-mobile", "?0");
+            request.AddHeader("Upgrade-Insecure-Requests", "1");
+            client.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.131 Safari/537.36";
+            request.AddHeader("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9");
+            request.AddHeader("Sec-Fetch-Site", "same-origin");
+            request.AddHeader("Sec-Fetch-Mode", "navigate");
+            request.AddHeader("Sec-Fetch-User", "?1");
+            request.AddHeader("Sec-Fetch-Dest", "document");
+            IRestResponse response = client.Execute(request);
+            /*Console.WriteLine(response.Content);*/
+            string response_html = response.Content;
+            string No_results = "<b>No results</b>";
+            bool first_check = response_html.Contains(No_results);
+            if (first_check is true)
             {
-                driver.Quit();
+                
+                Assert.AreEqual(true, first_check , "Test passes, no copies found ");
+                
             }
             else
             {
-                IReadOnlyCollection<IWebElement> selecthreh = driver.FindElements(By.ClassName("result"));
-                selecthreh.Click();
+                IReadOnlyCollection<IWebElement> selectlink = driver.FindElements(By.XPath("//div[@class='result']//a"));
+
+                Console.WriteLine("empty");
             }
 
-
-
-
-        }
-
-        [TearDown]
-        public void TearDown()
-        {
-            
-           // driver.Quit();
         }
     }
 }
