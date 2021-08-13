@@ -4,19 +4,20 @@ using System;
 using System.Collections.Generic;
 using RestSharp;
 using NUnit.Framework.Internal;
+using OpenQA.Selenium.Chrome;
 
 namespace Copyscape
 {
     
     public class Copyscape_Check
     {
-        public IWebDriver driver;
-
+        
+        
         [Test]
         public void Copyscape()
         {
             
-            var client = new RestClient("https://www.copyscape.com/?q=https%3A%2F%2Fsrp-trade.ru%2F"); //+url
+            var client = new RestClient("https://www.copyscape.com/?q=https%3A%2F%2Flimefx.com%2F"); //+url
             client.Timeout = -1;
             var request = new RestRequest(Method.GET);
             request.AddHeader("sec-ch-ua", "\"Chromium\";v=\"92\", \" Not A;Brand\";v=\"99\", \"Google Chrome\";v=\"92\"");
@@ -28,6 +29,7 @@ namespace Copyscape
             request.AddHeader("Sec-Fetch-Mode", "navigate");
             request.AddHeader("Sec-Fetch-User", "?1");
             request.AddHeader("Sec-Fetch-Dest", "document");
+            
             IRestResponse response = client.Execute(request);
             /*Console.WriteLine(response.Content);*/
             string response_html = response.Content;
@@ -37,13 +39,19 @@ namespace Copyscape
             {
                 
                 Assert.AreEqual(true, first_check , "Test passes, no copies found ");
-                
+                Console.WriteLine("test 3");
             }
             else
             {
+                IWebDriver driver;
+                driver = new ChromeDriver();
+                driver.Navigate().GoToUrl("https://www.copyscape.com/?q=https%3A%2F%2Flimefx.com%2F");
                 IReadOnlyCollection<IWebElement> selectlink = driver.FindElements(By.XPath("//div[@class='result']//a"));
-
-                Console.WriteLine("empty");
+                if (selectlink.Count > 0)
+                {
+                    driver.FindElement(By.TagName("a")).Click();
+                }
+                    Console.WriteLine("empty");
             }
 
         }
