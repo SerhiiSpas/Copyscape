@@ -17,7 +17,7 @@ namespace Copyscape
         public void Copyscape()
         {
             
-            var client = new RestClient("https://www.copyscape.com/?q=https%3A%2F%2Flimefx.com%2F"); //+url
+            var client = new RestClient("https://www.copyscape.com/?q=https%3A%2F%2Flimefx.net%2F"); //+url
             client.Timeout = -1;
             var request = new RestRequest(Method.GET);
             request.AddHeader("sec-ch-ua", "\"Chromium\";v=\"92\", \" Not A;Brand\";v=\"99\", \"Google Chrome\";v=\"92\"");
@@ -34,7 +34,9 @@ namespace Copyscape
             /*Console.WriteLine(response.Content);*/
             string response_html = response.Content;
             string No_results = "<b>No results</b>";
+            
             bool first_check = response_html.Contains(No_results);
+
             if (first_check is true)
             {
                 
@@ -43,13 +45,17 @@ namespace Copyscape
             }
             else
             {
-                IWebDriver driver;
-                driver = new ChromeDriver();
-                driver.Navigate().GoToUrl("https://www.copyscape.com/?q=https%3A%2F%2Flimefx.com%2F");
+                IWebDriver driver = new ChromeDriver();
+                driver.Url = @"https://www.copyscape.com/?q=https%3A%2F%2Flimefx.net%2F";
+                
                 IReadOnlyCollection<IWebElement> selectlink = driver.FindElements(By.XPath("//div[@class='result']//a"));
-                if (selectlink.Count > 0)
+                
+                foreach (IWebElement a in selectlink)
                 {
-                    driver.FindElement(By.TagName("a")).Click();
+                   a.FindElement(By.TagName("a")).Click();
+
+
+                    continue;
                 }
                     Console.WriteLine("empty");
             }
