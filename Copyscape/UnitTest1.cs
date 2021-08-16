@@ -48,12 +48,14 @@ namespace Copyscape
                 IWebDriver driver = new ChromeDriver();
                 driver.Url = @"https://www.copyscape.com/?q=https%3A%2F%2Flimefx.net%2F";
                 
+
                 IReadOnlyCollection<IWebElement> selectlink = driver.FindElements(By.XPath("//div[@class='result']//a"));
                 
                 foreach (IWebElement a in selectlink)
                 {
-                   a.FindElement(By.TagName("a")).Click();
-
+                  // a.FindElement(By.XPath("//div[@class='result']//a")).Click();
+                    
+                    driver.Navigate().GoToUrl(a.GetAttribute("href"));
 
                     continue;
                 }
