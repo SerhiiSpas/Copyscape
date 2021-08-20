@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using RestSharp;
 using NUnit.Framework.Internal;
 using OpenQA.Selenium.Chrome;
+using RestSharp.Serialization.Json;
+using System.Text.RegularExpressions;
 
 namespace Copyscape
 {
@@ -17,7 +19,7 @@ namespace Copyscape
         public void Copyscape()
         {
             
-            var client = new RestClient("https://www.copyscape.com/?q=https%3A%2F%2Flimefx.net%2F"); //+url
+            var client = new RestClient("https://www.copyscape.com/?q=https%3A%2F%2Flexatrade.group%2F"); //+url
             client.Timeout = -1;
             var request = new RestRequest(Method.GET);
             request.AddHeader("sec-ch-ua", "\"Chromium\";v=\"92\", \" Not A;Brand\";v=\"99\", \"Google Chrome\";v=\"92\"");
@@ -34,19 +36,34 @@ namespace Copyscape
             /*Console.WriteLine(response.Content);*/
             string response_html = response.Content;
             string No_results = "<b>No results</b>";
-            
+            string results_error_month = "The maximum number of scans per month has been reached for this site";
+            string results_error_network = "Your computer or network has reached the limit for free Copyscape searches.";
             bool first_check = response_html.Contains(No_results);
+            bool second_check = response_html.Contains(results_error_month);
+            bool third_check = response_html.Contains(results_error_network);
 
             if (first_check is true)
             {
-                
-                Assert.AreEqual(true, first_check , "Test passes, no copies found ");
-                Console.WriteLine("test 3");
+                Assert.AreEqual(true, first_check , "first_check fail");
+                Console.WriteLine("Test passes, no copies found");
             }
+
+            else if (second_check is true)
+            {
+                Assert.AreEqual(true, second_check, "second_check fail");
+                Console.WriteLine("The maximum number of scans per month has been reached for this site");
+            }
+
+            else if (third_check is true)
+            {
+                Assert.AreEqual(true, third_check, "third_check fail");
+                Console.WriteLine("Your computer or network has reached the limit for free Copyscape searches.");
+            }
+
             else
             {
                 IWebDriver driver = new ChromeDriver();
-                driver.Url = @"https://www.copyscape.com/?q=https%3A%2F%2Flimefx.net%2F";
+                driver.Url = @"https://www.copyscape.com/?q=https%3A%2F%2Flexatrade.group%2F";
                 
 
                 IReadOnlyCollection<IWebElement> selectlink = driver.FindElements(By.XPath("//div[@class='result']//a"));
@@ -56,7 +73,24 @@ namespace Copyscape
                   // a.FindElement(By.XPath("//div[@class='result']//a")).Click();
                     
                     driver.Navigate().GoToUrl(a.GetAttribute("href"));
+                    Regex regex = new Regex(@"/\d{1, 3}/(%)>");
+                    By _textresults = By.XPath("//form[@action='followup.php']");
+                    string actualText = driver.FindElement(_textresults).Text;
+                    MatchCollection matches = regex.Matches(actualText);
 
+                    if (matches.Count > 0)
+                    {
+                        foreach (Match match in matches)
+                        Console.WriteLine(match);
+
+                    }
+
+                    else
+                    {
+                        Console.WriteLine("Not found results");
+                    }
+
+                    
                     continue;
                 }
                     Console.WriteLine("empty");
