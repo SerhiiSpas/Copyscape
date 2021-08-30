@@ -10,16 +10,16 @@ using System.Text.RegularExpressions;
 
 namespace Copyscape
 {
-    
+
     public class Copyscape_Check
     {
-        
-        
+
+
         [Test]
         public void Copyscape()
         {
-            
-            var client = new RestClient("https://www.copyscape.com/?q=https%3A%2F%2Flexatrade.group%2F"); //+url
+
+            var client = new RestClient("https://www.copyscape.com/?q=https%3A%2F%2Fwww.forexindikator.net%2F"); //+url
             client.Timeout = -1;
             var request = new RestRequest(Method.GET);
             request.AddHeader("sec-ch-ua", "\"Chromium\";v=\"92\", \" Not A;Brand\";v=\"99\", \"Google Chrome\";v=\"92\"");
@@ -31,7 +31,7 @@ namespace Copyscape
             request.AddHeader("Sec-Fetch-Mode", "navigate");
             request.AddHeader("Sec-Fetch-User", "?1");
             request.AddHeader("Sec-Fetch-Dest", "document");
-            
+
             IRestResponse response = client.Execute(request);
             /*Console.WriteLine(response.Content);*/
             string response_html = response.Content;
@@ -44,7 +44,7 @@ namespace Copyscape
 
             if (first_check is true)
             {
-                Assert.AreEqual(true, first_check , "first_check fail");
+                Assert.AreEqual(true, first_check, "first_check fail");
                 Console.WriteLine("Test passes, no copies found");
             }
 
@@ -63,37 +63,42 @@ namespace Copyscape
             else
             {
                 IWebDriver driver = new ChromeDriver();
-                driver.Url = @"https://www.copyscape.com/?q=https%3A%2F%2Flexatrade.group%2F";
-                
+                driver.Url = @"https://www.copyscape.com/?q=https%3A%2F%2Fwww.forexindikator.net%2F";
+                var _cookie = driver.Manage().Cookies.GetCookieNamed("PHPSESSID");
+
+
 
                 IReadOnlyCollection<IWebElement> selectlink = driver.FindElements(By.XPath("//div[@class='result']//a"));
-                
+
                 foreach (IWebElement a in selectlink)
                 {
-                  // a.FindElement(By.XPath("//div[@class='result']//a")).Click();
-                    
-                    driver.Navigate().GoToUrl(a.GetAttribute("href"));
+                    // a.FindElement(By.XPath("//div[@class='result']//a")).Click();
+                    IWebDriver driverTest = new ChromeDriver();    
+                    driverTest.Url = a.GetAttribute("href");                    
+                    driverTest.Manage().Cookies.AddCookie(_cookie);                    
+                    driverTest.Navigate().GoToUrl(a.GetAttribute("href"));
+
                     Regex regex = new Regex(@"/\d{1, 3}/(%)>");
                     By _textresults = By.XPath("//form[@action='followup.php']");
                     string actualText = driver.FindElement(_textresults).Text;
                     MatchCollection matches = regex.Matches(actualText);
 
-                    if (matches.Count > 0)
-                    {
-                        foreach (Match match in matches)
-                        Console.WriteLine(match);
+                     if (matches.Count > 0)
+                     {
+                         foreach (Match match in matches)
+                             Console.WriteLine(match);
 
-                    }
+                     }
 
-                    else
-                    {
-                        Console.WriteLine("Not found results");
-                    }
+                     else
+                     {
+                         Console.WriteLine("Not found results");
+                     }
 
-                    
-                    continue;
+
+
                 }
-                    Console.WriteLine("empty");
+                Console.WriteLine("empty");
             }
 
         }
